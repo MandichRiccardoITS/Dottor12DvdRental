@@ -106,4 +106,43 @@ class ActorsService
         actor.Id = newId;
     }
 
+    public void Update(Actor actor)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        const string query = """
+            UPDATE public.actor
+            SET
+                first_name = @firstName,
+                last_name = @lastName,
+                last_update = now()
+            WHERE
+                actor_id = @id;
+            """;
+
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@id", actor.Id);
+        command.Parameters.AddWithValue("@firstName", actor.FirstName);
+        command.Parameters.AddWithValue("@lastName", actor.LastName);
+
+        command.ExecuteNonQuery();
+    }
+
+    public void Delete(int actorId) {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        const string query = """
+            DELETE
+                public.actor
+            WHERE
+                actor_id = @id;
+            """;
+
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@id", actorId);
+
+        command.ExecuteNonQuery();
+    }
 }
