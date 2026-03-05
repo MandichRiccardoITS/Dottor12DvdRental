@@ -3,7 +3,7 @@
 namespace Dottor12DvdRental.Models;
 
 [DebuggerDisplay("{Id} {FirstName} {LastName}")]
-internal class Actor
+class Actor
 {
     public int Id { get; set; }
     public string FirstName { get; set; } = default!;

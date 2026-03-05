@@ -3,27 +3,29 @@ using Dottor12DvdRental.Services;
 
 ActorsService actorsService = new ActorsService();
 
-Actor a = new Actor
+var newActor = new Actor()
 {
-    FirstName = "Pippo",
-    LastName = "Pluto"
+    FirstName = "Andrea",
+    LastName = "Dottor"
 };
-actorsService.Insert(a);
+actorsService.Insert(newActor);
+Console.WriteLine($"Attore inserito con id {newActor.Id}");
 
+// Lista
 var actors = actorsService.GetList();
 
-foreach (Actor item in actors)
+foreach (var item in actors)
 {
     Console.WriteLine($"{item.FirstName} {item.LastName}");
 }
 
+// Dettaglio
 Actor? actor = actorsService.GetById(1);
-
-if(actor != null)
-{
-    Console.WriteLine($"TROVATO {actor.FirstName} {actor.LastName}");
-}
+if (actor is not null)
+    Console.WriteLine($"TROVATO: {actor.FirstName} {actor.LastName}");
 else
-{
-    Console.WriteLine("NON TROVATO");
-}
+    Console.WriteLine("Attore con id 1 non trovato.");
+
+
+Console.WriteLine("END");
+

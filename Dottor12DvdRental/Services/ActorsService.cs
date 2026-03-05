@@ -1,6 +1,7 @@
-﻿using Dottor12DvdRental.Models;
-
+﻿
 namespace Dottor12DvdRental.Services;
+using Npgsql;
+using Dottor12DvdRental.Models;
 
 class ActorsService
 {
@@ -8,76 +9,101 @@ class ActorsService
 
     public IEnumerable<Actor> GetList()
     {
-        using var conn = new Npgsql.NpgsqlConnection(_connectionString);
-        conn.Open();
+        using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
         string selectQuery = """
-            SELECT
-                actor_id,
-                first_name,
-                last_name,
+            SELECT 
+                actor_id, 
+                first_name, 
+                last_name, 
                 last_update
-            FROM public.actor
+            FROM public.actor;
             """;
-        using var command = conn.CreateCommand();
+
+        //using NpgsqlCommand command = new NpgsqlCommand(selectQuery, connection);
+        using NpgsqlCommand command = connection.CreateCommand();
         command.CommandText = selectQuery;
-        using Npgsql.NpgsqlDataReader reader = command.ExecuteReader();
+
+        using NpgsqlDataReader reader = command.ExecuteReader();
+
         List<Actor> actors = [];
+
         while (reader.Read())
         {
             Actor actor = new Actor();
             actors.Add(actor);
-            actor.Id = (int) reader["actor_id"];
-            actor.FirstName = (string) reader["first_name"];
-            actor.LastName = (string) reader["last_name"];
-            actor.LastUpdate = (DateTime) reader["last_update"];
+
+            //actor.Id = reader.GetInt32(0);
+            actor.Id = (int)reader["actor_id"];
+            //actor.Id = reader.GetFieldValue<int>(0);
+            //actor.Id = reader.GetInt32(reader.GetOrdinal("actor_id"));
+            //actor.Id = reader.GetFieldValue<int>(reader.GetOrdinal("actor_id"));
+            actor.FirstName = (string)reader["first_name"];
+            actor.LastName = (string)reader["last_name"];
+            actor.LastUpdate = (DateTime)reader["last_update"];
         }
+
         return actors;
     }
 
     public Actor? GetById(int id)
     {
-        using var conn = new Npgsql.NpgsqlConnection(_connectionString);
-        conn.Open();
-        string selectQuery = """
-            SELECT
-                actor_id,
-                first_name,
-                last_name,
-                last_update
-            FROM public.actor
-            WHERE actor_id = @id
-            """;
-        using var command = conn.CreateCommand();
-        command.CommandText = selectQuery;
+        using NpgsqlConnection connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        string selectQuery = $"""
+              SELECT 
+                  actor_id, 
+                  first_name, 
+                  last_name, 
+                  last_update
+              FROM public.actor
+              WHERE
+                actor_id = @id
+              """;
+
+        using NpgsqlCommand command = new NpgsqlCommand(selectQuery, connection);
         command.Parameters.AddWithValue("@id", id);
-        using Npgsql.NpgsqlDataReader reader = command.ExecuteReader();
-        Actor? actor = null;
+
+        using NpgsqlDataReader reader = command.ExecuteReader();
+
         if (reader.Read())
         {
-            actor = new Actor();
-            actor.Id = (int) reader["actor_id"];
-            actor.FirstName = (string) reader["first_name"];
-            actor.LastName = (string) reader["last_name"];
-            actor.LastUpdate = (DateTime) reader["last_update"];
+            Actor actor = new Actor();
+            actor.Id = (int)reader["actor_id"];
+            actor.FirstName = (string)reader["first_name"];
+            actor.LastName = (string)reader["last_name"];
+            actor.LastUpdate = (DateTime)reader["last_update"];
+
+            return actor;
         }
-        return actor;
+
+        return null;
     }
+
 
     public void Insert(Actor actor)
     {
-        using var conn = new Npgsql.NpgsqlConnection(_connectionString);
-        conn.Open();
-        string insertQuery = """
-            INSERT INTO public.actor
-                (first_name, last_name)
-            VALUES
-                (@firstName, @lastName)
-            RETURNING actor_id
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+
+        const string query = """
+            INSERT INTO public.actor (first_name, last_name)
+            VALUES (@firstName, @lastName)
+            RETURNING actor_id;
             """;
-        using var command = conn.CreateCommand();
-        command.CommandText = insertQuery;
+
+        using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("@firstName", actor.FirstName);
         command.Parameters.AddWithValue("@lastName", actor.LastName);
-        actor.Id = (int)command.ExecuteScalar()!;
+
+        // Query che non ritorna nessun dato
+        //int affectedRows = command.ExecuteNonQuery();
+
+        // Query che ritorna un unico valore
+        int newId = (int)command.ExecuteScalar()!;
+        actor.Id = newId;
     }
+
 }
