@@ -26,6 +26,27 @@ if (actor is not null)
 else
     Console.WriteLine("Attore con id 1 non trovato.");
 
+// Update
+if (actor is not null)
+{
+    actor.FirstName = "TEST";
+    actor.LastName = "ITS";
+    actorsService.Update(actor);
+}
+
+// Count
+long count = actorsService.Count();
+Console.WriteLine($"Actor count pre-delete: {count}");
+
+// Delete
+actorsService.Delete(207);
+
+// Count
+count = actorsService.Count();
+Console.WriteLine($"Actor count post-delete: {count}");
+
+var filteredList = actorsService.GetList("And", "Dot");
+Console.WriteLine($"Filtered list: {filteredList.Count()} attori trovati");
+
 
 Console.WriteLine("END");
-

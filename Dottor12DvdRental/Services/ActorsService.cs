@@ -134,7 +134,7 @@ class ActorsService
         connection.Open();
 
         const string query = """
-            DELETE
+            DELETE FROM
                 public.actor
             WHERE
                 actor_id = @id;
@@ -144,5 +144,51 @@ class ActorsService
         command.Parameters.AddWithValue("@id", actorId);
 
         command.ExecuteNonQuery();
+    }
+
+    public long Count()
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+        const string query = """
+            SELECT COUNT(*)
+            FROM public.actor;
+            """;
+        using var command = new NpgsqlCommand(query, connection);
+        long count = (long)command.ExecuteScalar()!;
+        return count;
+    }
+
+    public IEnumerable<Actor> GetList(string filterName, string filterSurname)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        connection.Open();
+        const string query = """
+            SELECT 
+                actor_id, 
+                first_name, 
+                last_name, 
+                last_update
+            FROM
+                public.actor
+            WHERE
+                first_name like @filterName AND
+                last_name like @filterSurname;
+            """;
+        using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("@filterName", $"%{filterName}%");
+        command.Parameters.AddWithValue("@filterSurname", $"%{filterSurname}%");
+        using var reader = command.ExecuteReader();
+        List<Actor> list = [];
+        while ( reader.Read() )
+        {
+            var actor = new Actor();
+            list.Add( actor );
+            actor.Id = (int)reader["actor_id"];
+            actor.FirstName = (string)reader["first_name"];
+            actor.LastName = (string)reader["last_name"];
+            actor.LastUpdate = (DateTime)reader["last_update"];
+        }
+        return list;
     }
 }
