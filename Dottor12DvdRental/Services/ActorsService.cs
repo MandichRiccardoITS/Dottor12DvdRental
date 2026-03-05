@@ -1,7 +1,6 @@
-﻿
-namespace Dottor12DvdRental.Services;
+﻿namespace Dottor12DvdRentalActor.Services;
 using Npgsql;
-using Dottor12DvdRental.Models;
+using Dottor12DvdRentalActor.Models;
 
 class ActorsService
 {

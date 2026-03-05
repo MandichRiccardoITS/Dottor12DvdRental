@@ -1,5 +1,5 @@
-﻿using Dottor12DvdRental.Models;
-using Dottor12DvdRental.Services;
+﻿using Dottor12DvdRentalActor.Models;
+using Dottor12DvdRentalActor.Services;
 
 ActorsService actorsService = new ActorsService();
 

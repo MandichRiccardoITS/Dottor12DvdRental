@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Dottor12DvdRental.Models;
+namespace Dottor12DvdRentalActor.Models;
 
 [DebuggerDisplay("{Id} {FirstName} {LastName}")]
 class Actor
