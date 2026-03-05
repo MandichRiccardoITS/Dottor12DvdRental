@@ -52,7 +52,7 @@ internal class FilmService
         string query = $"""
             SELECT *
             FROM film
-            WHERE id = @id
+            WHERE film_id = @id
             """;
         using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("id", id);
@@ -60,7 +60,7 @@ internal class FilmService
         if (reader.Read())
         {
             var film = new Film();
-            film.Id = (Int16)reader["film_id"];
+            film.Id = (int)reader["film_id"];
             film.Title = (string)reader["title"];
             film.Description = (string)reader["description"];
             film.ReleaseYear = (int)reader["release_year"];
@@ -90,7 +90,7 @@ internal class FilmService
             (title, description, release_year, language_id, rental_duration, rental_rate, length, replacement_cost, rating, last_update, special_features, fulltext)
             VALUES
             (@title, @description, @release_year, @language_id, @rental_duration, @rental_rate, @length, @replacement_cost, @rating, @last_update, @special_features, @fulltext)
-            RETURNING id
+            RETURNING film_id
             """;
         using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("title", film.Title);
@@ -127,7 +127,7 @@ internal class FilmService
                 last_update = @last_update,
                 special_features = @special_features,
                 fulltext = @fulltext
-            WHERE id = @id
+            WHERE film_id = @id
             """;
         using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("id", film.Id);
@@ -152,7 +152,7 @@ internal class FilmService
         connection.Open();
         string query = $"""
             DELETE FROM film
-            WHERE id = @id
+            WHERE film_id = @id
             """;
         using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("id", id);
@@ -199,7 +199,7 @@ internal class FilmService
             SELECT *
             FROM film
             WHERE
-                (@id is null OR id = @id) AND
+                (@id is null OR film_id = @id) AND
                 (@title is null OR title like @title) AND
                 (@description is null OR description like @description) AND
                 (@releaseYear is null OR release_year = @releaseYear) AND
